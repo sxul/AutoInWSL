@@ -45,42 +45,25 @@ namespace aiw
                 }
 
                 // 进入WSL执行
-                var p = new Process
+                var process = new Process
                 {
                     StartInfo =
                     {
                         FileName = "bash.exe",
                         Arguments = argsb.ToString().Trim(),
-                        RedirectStandardError = true,
-                        RedirectStandardInput = true,
-                        RedirectStandardOutput = true,
+                        RedirectStandardError = false,
+                        RedirectStandardInput = false,
+                        RedirectStandardOutput = false,
                         UseShellExecute = false,
                         CreateNoWindow = false
                     },
                     EnableRaisingEvents = true
                 };
 
-                p.OutputDataReceived += (sender, e) =>
-                {
-                    if (e.Data != null)
-                    {
-                        Console.WriteLine(e.Data);
-                    }
-                };
-                p.ErrorDataReceived += (sender, e) =>
-                {
-                    if (e.Data != null)
-                    {
-                        Console.WriteLine(e.Data);
-                    }
-                };
-                p.Start();
+                process.Start();
 
-                p.BeginErrorReadLine();
-                p.BeginOutputReadLine();
-
-                p.WaitForExit();
-                p.Close();
+                process.WaitForExit();
+                process.Close();
                 return 0;
             }
             catch (Exception e)
