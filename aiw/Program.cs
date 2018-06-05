@@ -11,26 +11,37 @@ namespace aiw
         {
             try
             {
-                // 参数转换
+                // convert arguments
                 if (args.Length == 0) return 2;
                 var argsb = new StringBuilder();
                 foreach (var arg in args)
                 {
+                    var argLiunx = arg;
 
-                    var match = Regex.Match(arg, "([a-zA-Z]):(.*)");
+                    // do not convert normal argument
+                    if (!argLiunx.StartsWith("-") && !argLiunx.StartsWith("/"))
+                    {
+                        argLiunx = argLiunx.Replace("\\\\", "\\").Replace("\\", "/");
+                    }
+
+                    // Only match A-Z dirver letter
+                    var match = Regex.Match(argLiunx, "^([a-zA-Z]{1}):(.*)");
                     if (match.Success)
                     {
                         var letter = match.Result("$1").ToLower();
-                        var path = match.Result("$2").Replace("\\", "/");
+                        var path = match.Result("$2");
                         if (!path.StartsWith("/")) path = $"/{path}";
-                        argsb.Append(match.Result($"/mnt/{letter}{path}"));
+                        argLiunx = match.Result($"/mnt/{letter}{path}");
+
                     }
-                    else
-                    {
-                        var path = arg.Replace("\\", "/");
-                        argsb.Append(path);
-                    }
-                    argsb.Append(" ");
+
+                    // 处理linux下的特殊符号
+                    argLiunx = Regex.Replace(argLiunx, "([!$^&()=[\\]{}';, `|\\\\*?\"<>])", "\\$1");
+
+#if DEBUG
+                    Console.WriteLine($"{arg} -> {argLiunx}");
+#endif
+                    argsb.Append($"{argLiunx} ");
                 }
 
                 // 进入WSL执行
@@ -48,7 +59,6 @@ namespace aiw
                     },
                     EnableRaisingEvents = true
                 };
-
 
                 p.OutputDataReceived += (sender, e) =>
                 {
