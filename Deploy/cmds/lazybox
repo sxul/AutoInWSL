@@ -1,0 +1,14 @@
+#!/bin/bash
+if [ -e ~/.2wsl ]; then
+ for line in `awk "/^[^#;]/{print}" ~/.2wsl`
+  do
+   declare $line
+ done
+ 
+ if [ _$DEBUG = _true -o _$DEBUG = _True ]; then echo [Debug] $(basename $0 .sh) $@ ;fi
+ 
+fi
+
+if [ ! _$TEST = _true -o _$TEST = _True ]; then 
+$(basename $0 .sh) $@
+fi
